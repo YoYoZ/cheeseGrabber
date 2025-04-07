@@ -6,7 +6,8 @@ from flask import Flask, jsonify
 from moviepy import ImageSequenceClip
 import threading
 import logging
-
+import psutil
+import socket
 
 # Вимикаємо попередження від Flask
 log = logging.getLogger('werkzeug')
@@ -175,7 +176,17 @@ def run_console_interface():
         save_settings(username, password, url)
     
     print("Налаштування збережено. Сервер буде працювати з ними надалі")
+    for interface, addrs in psutil.net_if_addrs().items():
+        for addr in addrs:
+            if addr.address.startswith("192.168"):
+                print(f"Інтерфейс: {interface} | IP-адреса з портом: http://{addr.address}:5000")
+                print("________________________________________________________")
+                print(f"Посилання для створення папки: http://{addr.address}:5000/start")
+                print(f"Посилання для захоплення кадру: http://{addr.address}:5000/capture")
+                print(f"Посилання для рендеру таймлапсу: http://{addr.address}:5000/stop")
+                print("________________________________________________________")
 
+    print("Вкажіть відповідні посилання у ваші G-code macro's")
     # Запуск Flask сервера
     app.run(host='0.0.0.0', port=5000)
 
